@@ -3,6 +3,8 @@ import {Geist, Geist_Mono, Inter} from "next/font/google";
 import "./globals.css";
 import {ThemeProvider} from '@/components/theme-provider';
 import Header from '@/components/header';
+import AppProvider from "@/app/AppProvider";
+import {cookies} from "next/headers";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -26,6 +28,8 @@ export default async function RootLayout({
                                          }: Readonly<{
     children: React.ReactNode
 }>) {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('sessionToken')?.value;
     return (
         <html lang="en" suppressHydrationWarning>
         <body className={`${inter.className}`}>
@@ -36,7 +40,10 @@ export default async function RootLayout({
             disableTransitionOnChange
         >
             <Header/>
-            {children}
+            <AppProvider
+                initSessionToken={sessionToken || ''}>
+                {children}
+            </AppProvider>
         </ThemeProvider>
         </body>
         </html>

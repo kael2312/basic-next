@@ -16,6 +16,7 @@ import {LoginBody, LoginBodyType} from '@/schemaValidations/auth.schema';
 import {useRouter} from 'next/navigation';
 import {useState} from 'react';
 import envConfig from '@/config';
+import {useAppContext} from "@/app/AppProvider";
 
 const LoginForm = () => {
     const [loading, setLoading] = useState(false);
@@ -27,6 +28,7 @@ const LoginForm = () => {
             password: ''
         }
     });
+    const { setSessionToken } = useAppContext();
 
     // 2. Define a submit handler.
     async function onSubmit(values: LoginBodyType) {
@@ -49,9 +51,30 @@ const LoginForm = () => {
                 if(!res.ok){
                     throw data
                 }
-                console.log('result: ', result);
                 return data
             });
+            console.log('result: ', result);
+            const resultFromNextServer = await fetch('/api/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: result.payload.data.token
+                })
+            }).then(async (res) => {
+                const payload = await res.json()
+                const data = {
+                    status: res.status,
+                    payload
+                }
+                if(!res.ok){
+                    throw data
+                }
+                return data
+            });
+
+            setSessionToken(resultFromNextServer?.payload?.res?.data);
         } catch (e) {
 
         }
