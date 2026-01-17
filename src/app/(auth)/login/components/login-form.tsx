@@ -38,8 +38,8 @@ const LoginForm = () => {
       await authApiRequest.auth({
         sessionToken: result.payload.data.token,
       });
-
       setSessionToken(result.payload.data.token);
+      router.push("/profile");
     } catch (e) {}
   }
 

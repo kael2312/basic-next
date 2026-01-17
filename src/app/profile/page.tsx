@@ -3,6 +3,7 @@
 import React, {useEffect, useState} from 'react';
 import {useAppContext} from "@/app/AppProvider";
 import envConfig from "@/config";
+import accountService from "@/services/account.service";
 
 const Page = () => {
     const {sessionToken} = useAppContext()
@@ -10,24 +11,8 @@ const Page = () => {
 
     useEffect(() => {
         const fetchRequest = async () => {
-            const res = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/account/me`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${sessionToken}`
-                },
-            })
-                .then(async (res) => {
-                    const payload = await res.json()
-                    const data = {
-                        status: res.status,
-                        payload
-                    }
-                    if (!res.ok) {
-                        throw data
-                    }
-                    return data
-                });
-            setName(res.payload.data.name)
+            const res = await accountService.me(sessionToken);
+            setName(res?.payload?.data?.name);
         }
 
         fetchRequest();
